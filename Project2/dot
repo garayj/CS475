@@ -1,0 +1,27 @@
+#!/bin/bash
+# number of threads:
+thing() {
+    echo -e "\t10\t100\t500\t1000\t2000\t3000\t4000\t8000"
+    for  t  in  1 2 4 8 12 16
+    do
+        # number of subdivisions:
+        echo -ne  "$t\t"
+        for nn in 10 100 500 1000 2000 3000 4000 8000
+        do
+            volFlag=0
+            if [ $# == 1 ] && [ $1 == 'volume' ]
+            then
+                volFlag=1
+            fi
+            g++  -DVOL=$volFlag -DNUMNODES=$nn   -DNUMT=$t   prog.cpp  -o prog  -lm  -fopenmp
+            ./prog
+        done
+        echo
+    done
+}
+
+thing volume > volume$$.csv
+thing > perfomance$$.csv
+
+
+

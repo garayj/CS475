@@ -1,0 +1,27 @@
+#!/bin/bash
+# number of threads:
+thing() {
+    echo -e "\t1\t10\t100\t1000\t10000\t100000\t500000\t1000000\t1500000\t2000000\t2500000\t3000000\t3500000\t4000000\t4500000\t5000000"
+    for  t  in  1 2 4 6 8
+    do
+        # number of subdivisions:
+        echo -ne  "$t\t"
+        for tr in 1 10 100 1000 10000 100000 500000  1000000  1500000  2000000  2500000  3000000  3500000  4000000  4500000  5000000
+        do
+            statsFlag=0
+            if [ $# == 1 ] && [ $1 == 'stats' ]
+            then
+                statsFlag=1
+            fi
+            g++ -DSTATS=$statsFlag  -DNUMTRIALS=$tr   -DNUMT=$t   proj.cpp  -o prog  -lm  -fopenmp
+            ./prog
+        done
+        echo
+    done
+}
+
+thing stats > stats$$.csv
+thing > perfomance$$.csv
+
+
+
