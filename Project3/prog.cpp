@@ -14,8 +14,9 @@
 #endif
 
 // Constants
-const float GRAIN_GROWS_PER_MONTH = 9.0;
+const float GRAIN_GROWS_PER_MONTH = 13.0;
 const float ONE_DEER_EATS_PER_MONTH = 1.0;
+const int ONE_VIRUS_EATS_PER_MONTH = 1;
 
 const float AVG_PRECIP_PER_MONTH = 7.0; // average
 const float AMP_PRECIP_PER_MONTH = 6.0; // plus or minus
@@ -39,7 +40,7 @@ int Ranf(unsigned int *, int, int);
 void Grain();
 void Watcher();
 void GrainDeer();
-void MyAgent();
+void Virus();
 void InitBarrier(int);
 void WaitBarrier();
 float SQR(float);
@@ -52,7 +53,7 @@ float NowTemp;   // temperature this month
 
 float NowHeight; // grain height in inches
 int NowNumDeer;  // number of deer in the current population
-int Something;
+int NowVirus;
 unsigned int seed = 0;
 
 int main(int argc, char *argv[])
@@ -69,6 +70,7 @@ int main(int argc, char *argv[])
     // starting state
     NowNumDeer = 1;
     NowHeight = 1.;
+    NowVirus = 0;
 
     // compute a temporary next-value for this quantity
     // based on the current state of the simulation:
@@ -87,13 +89,13 @@ int main(int argc, char *argv[])
 
     if (MONTHSONLY)
     {
-        printf("Month\tTemp (C)\tPrecip(cm)\tHeight(cm)\tDeer\n");
-        printf("%d\t%.2lf\t%.2lf\t%.2lf\t%d\n", NowMonth, (5. / 9.) * (NowTemp - 32), NowPrecip * 2.54, NowHeight * 2.54, NowNumDeer);
+        printf("Month\tTemp (C)\tPrecip(cm)\tHeight(cm)\tDeer\tVirus\n");
+        printf("%d\t%.2lf\t%.2lf\t%.2lf\t%d\t%d\n", NowMonth, (5. / 9.) * (NowTemp - 32), NowPrecip * 2.54, NowHeight * 2.54, NowNumDeer, NowVirus);
     }
     else
     {
-        printf("Year\tMonth\tTemp\tPrecip\tHeight\tDeer\n");
-        printf("%d\t%d\t%.2lf\t%.2lf\t%.2lf\t%d\n", NowYear, NowMonth, (5. / 9.) * (NowTemp - 32), NowPrecip * 2.54, NowHeight * 2.54, NowNumDeer);
+        printf("Year\tMonth\tTemp\tPrecip\tHeight\tDeer\tVirus\n");
+        printf("%d\t%d\t%.2lf\t%.2lf\t%.2lf\t%d\t%d\n", NowYear, NowMonth, (5. / 9.) * (NowTemp - 32), NowPrecip * 2.54, NowHeight * 2.54, NowNumDeer, NowVirus);
     }
 
     omp_set_num_threads(NUMT); // same as # of sections
@@ -117,7 +119,7 @@ int main(int argc, char *argv[])
 
 #pragma omp section
         {
-            MyAgent(); // your own
+            Virus(); // your own
         }
     } // implied barrier -- all functions must return in order
     // to allow any of them to get past here
@@ -125,12 +127,13 @@ int main(int argc, char *argv[])
 
 void GrainDeer()
 {
-    while (NowYear < 2026)
+    while (NowMonth < 71)
     {
         // DoneComputing barrier:
 
         // Create a flag for the increment or decrement of the number of deer.
         bool enoughFoodForMoreDeer = NowHeight > (float)NowNumDeer;
+        int potentialInfectedDeer = NowVirus;
         WaitBarrier();
 
         // After the DoneComputing barrier, assign new NowNumDeer.
@@ -138,9 +141,19 @@ void GrainDeer()
         {
             NowNumDeer++;
         }
-        else if (NowNumDeer > 0)
+        if (!enoughFoodForMoreDeer)
         {
             NowNumDeer--;
+        }
+
+        if (potentialInfectedDeer > 0)
+        {
+            int numOfDeerDead = Ranf(&seed, 0, potentialInfectedDeer);
+            NowNumDeer -= numOfDeerDead;
+        }
+        if (NowNumDeer < 0)
+        {
+            NowNumDeer = 0;
         }
 
         // DoneAssigning barrier:
@@ -153,7 +166,7 @@ void GrainDeer()
 
 void Grain()
 {
-    while (NowYear < 2026)
+    while (NowMonth < 71)
     {
         // Calculate factors
         float tempFactor = exp(-SQR((NowTemp - MIDTEMP) / 10.));
@@ -180,7 +193,7 @@ void Grain()
 
 void Watcher()
 {
-    while (NowYear < 2026)
+    while (NowMonth < 71)
     {
         // DoneComputing barrier:
         WaitBarrier();
@@ -188,24 +201,10 @@ void Watcher()
         // DoneAssigning barrier:
         WaitBarrier();
 
-        // NowYear += 1;
-        // NowMonth += 1;
-
-        if (MONTHSONLY)
+        NowMonth++;
+        if (NowMonth % 12 == 0)
         {
-            NowMonth++;
-            if (NowMonth % 12 == 0)
-            {
-                NowYear++;
-            }
-        }
-        else
-        {
-            NowMonth = (NowMonth + 1) % 12;
-            if (NowMonth == 0)
-            {
-                NowYear++;
-            }
+            NowYear++;
         }
         float threadAng = (30. * (float)NowMonth + 15.) * (M_PI / 180.);
 
@@ -218,24 +217,31 @@ void Watcher()
             NowPrecip = 0.;
         if (MONTHSONLY)
         {
-            printf("%d\t%.2lf\t%.2lf\t%.2lf\t%d\n", NowMonth, (5. / 9.) * (NowTemp - 32), NowPrecip * 2.54, NowHeight * 2.54, NowNumDeer);
+            printf("%d\t%.2lf\t%.2lf\t%.2lf\t%d\t%d\n", NowMonth, (5. / 9.) * (NowTemp - 32), NowPrecip * 2.54, NowHeight * 2.54, NowNumDeer, NowVirus);
         }
         else
         {
-            printf("%d\t%d\t%.2lf\t%.2lf\t%.2lf\t%d\n", NowYear, NowMonth, (5. / 9.) * (NowTemp - 32), NowPrecip * 2.54, NowHeight * 2.54, NowNumDeer);
+            printf("%d\t%d\t%.2lf\t%.2lf\t%.2lf\t%d\t%d\n", NowYear, NowMonth % 12, (5. / 9.) * (NowTemp - 32), NowPrecip * 2.54, NowHeight * 2.54, NowNumDeer, NowVirus);
         }
         WaitBarrier();
     }
 }
 
-void MyAgent()
+void Virus()
 {
-    while (NowYear < 2026)
+    while (NowMonth < 71)
     {
+        bool lotsOfDeer = (NowNumDeer > 4);
         // DoneComputing barrier:
-        Something++;
         WaitBarrier();
-
+        if (lotsOfDeer)
+        {
+            NowVirus++;
+        }
+        else
+        {
+            NowVirus = NowVirus / 2;
+        }
         // DoneAssigning barrier:
         WaitBarrier();
 

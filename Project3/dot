@@ -7,7 +7,7 @@ thing() {
     then
         flag=1
     fi
-    g++ -DMONTHSONLY prog.cpp  -o prog  -lm   -fopenmp
+    g++ -DMONTHSONLY=$flag prog.cpp  -o prog  -lm   -fopenmp
     ./prog
     echo
 }
