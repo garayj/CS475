@@ -7,7 +7,7 @@
 #define SSE_WIDTH 4
 
 #ifndef NUMT
-#define NUMT 8
+#define NUMT 16
 #endif
 
 #ifndef ARRAY_LENGTH
@@ -126,6 +126,6 @@ int main()
 	}
 	delete a;
 	delete b;
-	printf("Array size:\t%d\tBest SSE run:\t%.2lf\tBest non-SSE Run:\t%.2lf\tBest multithreaded run:\t%.2lf\n", ARRAY_LENGTH, bestSseRun, bestNonSseRun, bestMultiThreadSseRun);
+	printf("\t%.2lf\t%.2lf\t%.2lf\t%d\n", bestSseRun, bestNonSseRun, bestMultiThreadSseRun, NUMT);
 	return 0;
 }
