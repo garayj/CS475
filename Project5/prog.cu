@@ -63,7 +63,6 @@ __global__ void MonteCarlo(float *Xcs, float *Ycs, float *Rs, int *Hits)
 
   if (d >= 0.)
   {
-printf("hi");
 
 
   // If d is less than 0., then the circle was completely missed. (Case A) Continue on to the next trial in the for-loop.
@@ -78,7 +77,6 @@ printf("hi");
   // If tmin is less than 0., then the circle completely engulfs the laser pointer. (Case B) Continue on to the next trial in the for-loop.
   if (tmin >= 0.)
   {
-    printf("hello");
 
   // where does it intersect the circle?
   float xcir = tmin;
