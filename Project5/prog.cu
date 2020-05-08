@@ -161,6 +161,7 @@ int main(int argc, char *argv[])
   cudaMemcpy(dXcs, hXcs, sizeof(hXcs), cudaMemcpyHostToDevice);
   cudaMemcpy(dYcs, hYcs, sizeof(hYcs), cudaMemcpyHostToDevice);
   cudaMemcpy(dRs, hRs, sizeof(hRs), cudaMemcpyHostToDevice);
+  cudaMemcpy(dHits, hHits, sizeof(hHits), cudaMemcpyHostToDevice);
 
   // setup the execution parameters:
 
