@@ -61,10 +61,8 @@ __global__ void MonteCarlo(float *Xcs, float *Ycs, float *Rs, int *Hits)
   float c = xc * xc + yc * yc - r * r;
   float d = b * b - 4. * a * c;
 
-  if (d < 0.)
+  if (d >= 0.)
   {
-    return;
-  }
 
   // If d is less than 0., then the circle was completely missed. (Case A) Continue on to the next trial in the for-loop.
 
@@ -76,10 +74,8 @@ __global__ void MonteCarlo(float *Xcs, float *Ycs, float *Rs, int *Hits)
   float tmin = t1 < t2 ? t1 : t2; // only care about the first intersection
 
   // If tmin is less than 0., then the circle completely engulfs the laser pointer. (Case B) Continue on to the next trial in the for-loop.
-  if (tmin < 0.)
+  if (tmin >= 0.)
   {
-    return;
-  }
 
   // where does it intersect the circle?
   float xcir = tmin;
@@ -110,6 +106,8 @@ __global__ void MonteCarlo(float *Xcs, float *Ycs, float *Rs, int *Hits)
   {
     Hits[gid] = 1;
   }
+  }
+ }
 }
 
 // main program:
