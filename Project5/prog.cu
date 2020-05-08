@@ -76,6 +76,7 @@ __global__ void MonteCarlo(float *Xcs, float *Ycs, float *Rs, int *Hits)
   // If tmin is less than 0., then the circle completely engulfs the laser pointer. (Case B) Continue on to the next trial in the for-loop.
   if (tmin >= 0.)
   {
+    printf("hello")
 
   // where does it intersect the circle?
   float xcir = tmin;
@@ -156,10 +157,10 @@ int main(int argc, char *argv[])
   checkCudaErrors(status);
 
   // copy host memory to the device:
-  cudaMemcpy(dXcs, hXcs, sizeof(hXcs), cudaMemcpyHostToDevice);
-  cudaMemcpy(dYcs, hYcs, sizeof(hYcs), cudaMemcpyHostToDevice);
-  cudaMemcpy(dRs, hRs, sizeof(hRs), cudaMemcpyHostToDevice);
-  cudaMemcpy(dHits, hHits, sizeof(hHits), cudaMemcpyHostToDevice);
+  cudaMemcpy(dXcs, hXcs, NUMTRIALS * sizeof(float), cudaMemcpyHostToDevice);
+  cudaMemcpy(dYcs, hYcs, NUMTRIALS * sizeof(float), cudaMemcpyHostToDevice);
+  cudaMemcpy(dRs, hRs, NUMTRIALS * sizeof(float), cudaMemcpyHostToDevice);
+  cudaMemcpy(dHits, hHits, NUMTRIALS * sizeof(int), cudaMemcpyHostToDevice);
 
   // setup the execution parameters:
 
