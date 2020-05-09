@@ -14,11 +14,11 @@
 
 // setting the number of trials in the monte carlo simulation:
 #ifndef NUMTRIALS
-#define NUMTRIALS 16384
+#define NUMTRIALS 131072
 #endif
 
 #ifndef BLOCKSIZE
-#define BLOCKSIZE 16 // number of threads per block
+#define BLOCKSIZE 128 // number of threads per block
 #endif
 
 #define NUMBLOCKS (NUMTRIALS / BLOCKSIZE)
@@ -116,7 +116,7 @@ __global__ void MonteCarlo(float *Xcs, float *Ycs, float *Rs, int *Hits)
 int main(int argc, char *argv[])
 {
   TimeOfDaySeed();
-  int dev = findCudaDevice(argc, (const char **)argv);
+  // int dev = findCudaDevice(argc, (const char **)argv);
 
   // allocate host memory:
 
@@ -207,7 +207,7 @@ int main(int argc, char *argv[])
   double secondsTotal = 0.001 * (double)msecTotal;
   double trialsPerSecond = (float)NUMTRIALS / secondsTotal;
   double megaTrialsPerSecond = trialsPerSecond / 1000000.;
-  fprintf(stderr, "Number of Trials = %10d, MegaTrials/Second = %10.4lf\n", NUMTRIALS, megaTrialsPerSecond);
+  printf("%10d\t\t%10.4lf", NUMTRIALS, megaTrialsPerSecond);
 
   // copy result from the device to the host:
 
@@ -224,7 +224,7 @@ int main(int argc, char *argv[])
   }
 
   float probability = 100.f * (float)numHits / (float)NUMTRIALS;
-  fprintf(stderr, "\nProbability = %6.3f %%\n", probability);
+  printf("\t%6.3f %%\n", probability);
 
   // clean up memory:
   delete[] hXcs;
