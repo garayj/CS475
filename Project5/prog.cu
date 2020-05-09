@@ -14,11 +14,11 @@
 
 // setting the number of trials in the monte carlo simulation:
 #ifndef NUMTRIALS
-#define NUMTRIALS (1024 * 1024)
+#define NUMTRIALS 16384
 #endif
 
 #ifndef BLOCKSIZE
-#define BLOCKSIZE 32 // number of threads per block
+#define BLOCKSIZE 16 // number of threads per block
 #endif
 
 #define NUMBLOCKS (NUMTRIALS / BLOCKSIZE)
