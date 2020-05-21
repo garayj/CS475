@@ -1,0 +1,22 @@
+#!/bin/bash
+# number of threads:
+thing() {
+    
+    echo -ne "\t8\t16\t32\t64\t128\t256\t512"
+    echo
+    for nmb in 1024 8192 131072 1048576 2097152 4194304 8388608
+    do
+        echo -ne $nmb
+        for ls in 8 16 32 64 128 256 512
+        do
+            g++   -DLOCAL_SIZE=$ls   -DNMB=$nmb  -o first first.cpp /usr/local/cuda-10.2/lib64/libOpenCL.so.1.1 -lm  -fopenmp
+            ./first
+        done
+        echo
+    done
+}
+
+thing
+
+
+
